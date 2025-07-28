@@ -68,21 +68,65 @@ def detect_ai_percentage_selenium(text):
 
 
 # Paraphrasing step is not automated here, as it would require similar Selenium automation for QuillBot or another tool.
+
+# Basic humanization: shuffle sentences, replace some words, add minor randomization
+import random
 def paraphrase_text(text):
-    print("[INFO] Paraphrasing step not implemented. Returning original text.")
-    return text
+    print("[INFO] Attempting basic humanization.")
+    # Split into sentences
+    import re
+    sentences = re.split(r'(?<=[.!?]) +', text)
+    random.shuffle(sentences)
+    new_text = ' '.join(sentences)
+    # Replace some common words with synonyms
+    replacements = {
+        'students': 'learners',
+        'teachers': 'educators',
+        'AI': 'artificial intelligence',
+        'helps': 'assists',
+        'improve': 'enhance',
+        'problems': 'challenges',
+        'value': 'importance',
+        'technology': 'innovation',
+        'feedback': 'responses',
+        'tasks': 'duties',
+        'plan': 'prepare',
+        'backgrounds': 'histories',
+        'difficulties': 'challenges',
+        'reminds': 'alerts',
+        'responsible': 'thoughtful',
+        'fun': 'enjoyable',
+        'available': 'accessible',
+        'connection': 'relationship',
+    }
+    for k, v in replacements.items():
+        new_text = re.sub(rf'\b{k}\b', v, new_text, flags=re.IGNORECASE)
+    # Add a random phrase at the end
+    endings = [
+        "This is just one perspective.",
+        "The future remains to be seen.",
+        "Many factors can influence these outcomes.",
+        "It's a topic open for discussion.",
+        "Further research is always valuable."
+    ]
+    if random.random() < 0.5:
+        new_text += ' ' + random.choice(endings)
+    return new_text
 
 
 
 def humanize_text(text, threshold=40):
     current_text = text
-    while True:
+    attempts = 0
+    while attempts < 4:
         ai_percent = detect_ai_percentage_selenium(current_text)
         print(f"AI-detected percentage: {ai_percent}%")
         if ai_percent < threshold:
-            break
+            return current_text
         current_text = paraphrase_text(current_text)
+        attempts += 1
         time.sleep(1)
+    print("[WARN] Could not humanize text below threshold after 4 attempts.")
     return current_text
 
 
